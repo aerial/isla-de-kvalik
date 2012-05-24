@@ -1,5 +1,6 @@
 package com.example.dbmanager.client;
 
+import com.example.dbmanager.domain.AppContext;
 import com.example.dbmanager.domain.Person;
 import com.example.dbmanager.domain.Project;
 import com.extjs.gxt.ui.client.event.*;
@@ -13,14 +14,15 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.RootPanel;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class DBManager implements EntryPoint {
-    private final DBManagerServiceAsync dbmanagerService = GWT.create(DBManagerService.class);
-    private PersonWindow personWindow = new PersonWindow();
+    private DBManagerServiceAsync dbmanagerService;
+    private PersonWindow personWindow = new PersonWindow(new AppContext());
     private ProjectWindow projectWindow = new ProjectWindow();
-    private Person currentUser;
+    private AppContext context;
+
+    public void init(DBManagerServiceAsync dbManagerService) {
+        this.dbmanagerService = dbManagerService;
+    }
 
     public void onModuleLoad() {
         Menu menuPersons = new Menu();
@@ -59,9 +61,22 @@ public class DBManager implements EntryPoint {
         menuProjects.add(item11);
         menuProjects.add(item21);
 
+        Menu menuAddPersonToProject = new Menu();
+        MenuItem itemPTP1 = new MenuItem("Add");
+        itemPTP1.addSelectionListener(new SelectionListener<MenuEvent>() {
+            @Override
+            public void componentSelected(MenuEvent ce) {
+                addPersonToProject();
+            }
+        });
+        menuAddPersonToProject.add(itemPTP1);
+
+
+
         MenuBar bar = new MenuBar();
         bar.add(new MenuBarItem("Persons", menuPersons));
         bar.add(new MenuBarItem("Projects", menuProjects));
+        bar.add(new MenuBarItem("Add Person to Project",menuAddPersonToProject));
         RootPanel.get().add(bar);
     }
 
@@ -104,8 +119,14 @@ public class DBManager implements EntryPoint {
         editProjectWindow.show();
     }
 
+    private void addPersonToProject() {
+        ListProjectsToAddPersonsWindow lPTP = new ListProjectsToAddPersonsWindow();
+        lPTP.reloadProjects();
+        lPTP.close();
+    }
+
     private void reloadPersons(){
-        personWindow =  new PersonWindow();
+        personWindow =  new PersonWindow(new AppContext());
         personWindow.reloadPersons();
         personWindow.close();
     }

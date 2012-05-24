@@ -20,7 +20,7 @@ import com.google.gwt.user.client.ui.RootPanel;
 
 public class DBManagerLogin implements EntryPoint {
     private final DBManagerServiceAsync dbmanagerService = GWT.create(DBManagerService.class);
-    private PersonWindow personWindow = new PersonWindow();
+
 
     public void onModuleLoad() {
         final Window loginWindow = new Window();
@@ -60,11 +60,31 @@ public class DBManagerLogin implements EntryPoint {
                     @Override
                     public void onSuccess(Person result) {
                         loginWindow.setHeading("Success " + result.getLogin());
-                        if (result.getRole() == 1) {
 
+                        switch (result.getRole()) {
+                            case 0: {
+                                DBManager homepage = new DBManager();
+                                homepage.init(dbmanagerService);
+                                homepage.onModuleLoad();
+                                break; }
+                            case 1: {
+                                ProgrammerEntryPoint programmerPage = new ProgrammerEntryPoint();
+                                programmerPage.init(dbmanagerService);
+                                programmerPage.onModuleLoad();
+                                break; }
+                            case 2: {
+                                ManagerEntryPoint managerPage = new ManagerEntryPoint();
+                                managerPage.init(dbmanagerService);
+                                managerPage.onModuleLoad();
+                                break;}
                         }
+                        loginWindow.hide();
+
+
                     }
                 });
+
+
             }
         });
         loginWindow.addButton(loginButton);
@@ -73,9 +93,7 @@ public class DBManagerLogin implements EntryPoint {
     }
 
     private void reloadPersons(){
-        personWindow =  new PersonWindow();
-        personWindow.reloadPersons();
-        personWindow.close();
+
     }
 
     private void createPerson() {
