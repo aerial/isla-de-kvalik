@@ -22,8 +22,6 @@ public interface DBManagerServiceAsync {
 	public void updatePerson(Person personDTO, AsyncCallback callback);
 	public void removePerson(Long id, AsyncCallback<Integer> callback);
     void getPersonsByPprojectId(Long id, AsyncCallback<List<Person>> async);
-    void getUnassignedPeopleByProjectId(Long id, AsyncCallback<List<Person>> async);
-
 
     //String greetServer(String name) throws IllegalArgumentException;
 
@@ -43,4 +41,5 @@ public interface DBManagerServiceAsync {
     void removeDocument(Long id, AsyncCallback<Integer> async);
     void getDocumentsByProjectId(Long id, AsyncCallback<List<Document>> async);
     void getDocumentsByPersonIdAndProjectId(Long personId, Long projectId, AsyncCallback<List<Document>> async);
+    void getDocumentsByOwnerId(Long ownerId, AsyncCallback<List<Document>> async);
 }

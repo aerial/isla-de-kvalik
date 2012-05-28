@@ -72,9 +72,22 @@ public class DBManagerServiceImpl extends RemoteServiceServlet implements
     public List<Document> getDocumentsByPersonIdAndProjectId(Long personId, Long projectId) {
         Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
-        List<Document> resId = session.createQuery("from Document where performerId = " + personId + " and projectId = " + projectId).list();
+        List<Document> resId = session.createQuery("from Document where personId = " + personId + " and projectId = " + projectId).list();
         session.getTransaction().commit();
         return resId;
+    }
+
+    public List<Document> getDocumentsByOwnerId(Long ownerId) {
+        List<Document> list = getDocuments();
+        List<Document> resList = new ArrayList<Document>();
+        
+        for(Document document: list) {
+            Project tmp = findProjectById(document.getProjectId());
+            if(tmp.getManagerId() == ownerId) {
+                resList.add(document);
+            }
+        }
+        return resList;
     }
 
     //projects
@@ -158,20 +171,6 @@ public class DBManagerServiceImpl extends RemoteServiceServlet implements
         Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
         List<Person_Project> resId = session.createQuery("from Person_Project where projectId = " + id).list();
-        session.getTransaction().commit();
-        List<Person> personList = new ArrayList<Person>();
-        for(Person_Project i: resId) {
-            personList.add(findPersonById(i.getPersonId()));
-        }
-        return personList;
-//        return new ArrayList<Person>(project.getPersons());
-    }
-
-    public List<Person> getUnassignedPeopleByProjectId(Long id) {
-//        Project project = findProjectById(id);
-        Session session = HibernateUtil.getSessionFactory().getCurrentSession();
-        session.beginTransaction();
-        List<Person_Project> resId = session.createQuery("from Person_Project where projectId != " + id).list();
         session.getTransaction().commit();
         List<Person> personList = new ArrayList<Person>();
         for(Person_Project i: resId) {

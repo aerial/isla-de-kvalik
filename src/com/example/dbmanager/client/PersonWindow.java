@@ -1,7 +1,5 @@
 package com.example.dbmanager.client;
 
-import com.example.dbmanager.domain.AppContext;
-import com.example.dbmanager.domain.Document;
 import com.example.dbmanager.domain.Person;
 import com.extjs.gxt.ui.client.data.*;
 import com.extjs.gxt.ui.client.event.*;
@@ -12,33 +10,24 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.grid.*;
-import com.extjs.gxt.ui.client.widget.grid.ColumnData;
-import com.extjs.gxt.ui.client.widget.layout.*;
-import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
+import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.cell.client.TextButtonCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class PersonWindow  extends  Window{
     private final DBManagerServiceAsync dbmanagerService = GWT.create(DBManagerService.class);
     private PersonWindow personWindow;
-    private AppContext context;
-
-    public PersonWindow (AppContext appContext) {
-        context = appContext;
-    }
 
     public void reloadPersons(){
-        personWindow =  new PersonWindow(context);
+        personWindow =  new PersonWindow();
 
         RpcProxy<List<Person>> proxy = new RpcProxy<List<Person>>() {
             @Override
             protected void load(Object loadConfig, AsyncCallback<List<Person>> callback) {
-                dbmanagerService.getPersonsByPprojectId(context.getCurrentProject().getId(), callback);
+                dbmanagerService.getPeople(callback);
             }
         };
         BeanModelReader reader = new BeanModelReader();
@@ -50,8 +39,7 @@ public class PersonWindow  extends  Window{
         ColumnModel cm = new ColumnModel(getColumnConfig());
 
         ContentPanel panel = new ContentPanel();
-        panel.setHeading("Assigned people");
-
+        panel.setHeading("testTitle");
         panel.setFrame(true);
         panel.setSize("500", "300");
         panel.setLayout(new FitLayout());
@@ -106,84 +94,12 @@ public class PersonWindow  extends  Window{
             }
         });
         panel.add(grid);
-        
 
         personWindow.setPlain(true);
         personWindow.setSize(600, 400);
         personWindow.setHeading("Person");
-        personWindow.setLayout(new FlowLayout());
+        personWindow.setLayout(new FitLayout());
         personWindow.add(panel);
-
-
-        RpcProxy<List<Person>> unassignedProxy = new RpcProxy<List<Person>>() {
-            @Override
-            protected void load(Object loadConfig, AsyncCallback<List<Person>> callback) {
-                dbmanagerService.getUnassignedPeopleByProjectId(context.getCurrentProject().getId(), callback);
-            }
-        };
-
-        ListLoader<ListLoadResult<ModelData>> unassignedLoader = new BaseListLoader<ListLoadResult<ModelData>>(unassignedProxy, reader);
-        final ListStore<BeanModel> unassignedStore = new ListStore<BeanModel>(unassignedLoader);
-        unassignedLoader.load();
-
-
-        ContentPanel unassignedPeople = new ContentPanel();
-        Grid<BeanModel> unassignedGrid = new Grid<BeanModel>(unassignedStore, cm);
-        grid.setAutoExpandColumn("firstName");
-        grid.addListener(Events.CellDoubleClick, new Listener<GridEvent<ModelData>>() {
-            @Override
-            public void handleEvent(GridEvent<ModelData> be) {
-                final EditPersonWindow editPersonWindow = new EditPersonWindow(be.getModel());
-                //editPersonWindow.setHeading(be.getModel().get("id").toString());
-                Long id =(Long) be.getModel().get("id");
-                final List<Person> pList = new ArrayList<Person>();
-                dbmanagerService.findPersonById(id, new AsyncCallback<Person>() {
-                    @Override public void onFailure(Throwable caught) {}
-                    @Override
-                    public void onSuccess(Person result) {
-                        pList.add(result);
-                    }
-                });
-                Button saveButton = new Button("Save");
-                saveButton.addListener(Events.OnClick, new Listener<BaseEvent>() {
-                    @Override
-                    public void handleEvent(BaseEvent be) {
-                        if (pList.size()>0) {
-                            final Person updatePerson = pList.get(0);
-                            updatePerson.setFirstName(editPersonWindow.getFirstName());
-                            updatePerson.setLastName(editPersonWindow.getLastName());
-                            updatePerson.setAge(editPersonWindow.getAge());
-                            dbmanagerService.updatePerson(updatePerson, new AsyncCallback() {
-                                @Override public void onFailure(Throwable caught) { }
-                                @Override
-                                public void onSuccess(Object result) {
-                                    editPersonWindow.close();
-                                    personWindow.close();
-                                    reloadPersons();
-                                }
-                            });
-                        }
-                    }
-                });
-                Button cancelButton = new Button("Cancel");
-                cancelButton.addListener(Events.OnClick, new Listener<BaseEvent>() {
-                    @Override
-                    public void handleEvent(BaseEvent be) {
-                        editPersonWindow.close();
-                    }
-                });
-                editPersonWindow.addButton(saveButton);
-                editPersonWindow.addButton(cancelButton);
-                editPersonWindow.show();
-            }
-        });
-        unassignedPeople.add(unassignedGrid);
-        unassignedPeople.setHeading("Unassigned people");
-
-        unassignedPeople.setFrame(true);
-        unassignedPeople.setSize("500", "300");
-        unassignedPeople.setLayout(new FitLayout());
-        personWindow.add(unassignedPeople);
         personWindow.show();
     }
 

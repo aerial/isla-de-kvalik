@@ -1,22 +1,19 @@
 package com.example.dbmanager.client;
 
+import com.example.dbmanager.domain.AppContext;
 import com.example.dbmanager.domain.Person;
-import com.extjs.gxt.ui.client.event.*;
-import com.extjs.gxt.ui.client.widget.Info;
+import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
-import com.extjs.gxt.ui.client.widget.menu.Menu;
-import com.extjs.gxt.ui.client.widget.menu.MenuBar;
-import com.extjs.gxt.ui.client.widget.menu.MenuBarItem;
-import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.RootPanel;
 
 public class DBManagerLogin implements EntryPoint {
     private final DBManagerServiceAsync dbmanagerService = GWT.create(DBManagerService.class);
@@ -47,48 +44,49 @@ public class DBManagerLogin implements EntryPoint {
 
         loginWindow.add(formPanel);
         Button loginButton = new Button("Login");
-        loginButton.addListener(Events.OnClick, new Listener<BaseEvent>() {
-            @Override
-            public void handleEvent(BaseEvent be) {
-
-                dbmanagerService.login(loginTF.getValue().toString(),passwordTF.getValue().toString(), new AsyncCallback<Person>() {
-                    @Override
-                    public void onFailure(Throwable caught) {
-                        loginWindow.setHeading("Fail");
-                    }
-
-                    @Override
-                    public void onSuccess(Person result) {
-                        loginWindow.setHeading("Success " + result.getLogin());
-
-                        switch (result.getRole()) {
-                            case 0: {
-                                DBManager homepage = new DBManager();
-                                homepage.init(dbmanagerService);
-                                homepage.onModuleLoad();
-                                break; }
-                            case 1: {
-                                ProgrammerEntryPoint programmerPage = new ProgrammerEntryPoint();
-                                programmerPage.init(dbmanagerService);
-                                programmerPage.onModuleLoad();
-                                break; }
-                            case 2: {
-                                ManagerEntryPoint managerPage = new ManagerEntryPoint();
-                                managerPage.init(dbmanagerService);
-                                managerPage.onModuleLoad();
-                                break;}
-                        }
-                        loginWindow.hide();
-
-
-                    }
-                });
-
-
-            }
-        });
+//        loginButton.addListener(Events.OnClick, new Listener<BaseEvent>() {
+//            @Override
+//            public void handleEvent(BaseEvent be) {
+//
+//                dbmanagerService.login(loginTF.getValue().toString(),passwordTF.getValue().toString(), new AsyncCallback<Person>() {
+//                    @Override
+//                    public void onFailure(Throwable caught) {
+//                        loginWindow.setHeading("Fail");
+//                    }
+//
+//                    @Override
+//                    public void onSuccess(Person result) {
+//                        loginWindow.setHeading("Success " + result.getLogin());
+//
+//                        switch (result.getRole()) {
+//                            case 0: {
+//
+//                                break; }
+//                            case 1: {
+//                                ProgrammerEntryPoint programmerPage = new ProgrammerEntryPoint();
+//                                programmerPage.init(dbmanagerService);
+//                                programmerPage.onModuleLoad();
+//                                break; }
+//                            case 2: {
+//                                ManagerEntryPoint managerPage = new ManagerEntryPoint();
+//                                managerPage.init(dbmanagerService);
+//                                managerPage.onModuleLoad();
+//                                break;}
+//                        }
+//                        loginWindow.hide();
+//
+//
+//                    }
+//                });
+//
+//
+//            }
+//        });
         loginWindow.addButton(loginButton);
         loginWindow.show();
+        ManagerWorkspace homepage = new ManagerWorkspace();
+        homepage.init(dbmanagerService, new AppContext());
+        homepage.onModuleLoad();
 
     }
 

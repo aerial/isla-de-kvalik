@@ -23,6 +23,7 @@ public interface DBManagerService extends RemoteService {
     public Integer removeDocument(Long id);
     public List<Document> getDocumentsByProjectId(Long id);
     public List<Document> getDocumentsByPersonIdAndProjectId(Long personId, Long projectId);
+    List<Document> getDocumentsByOwnerId(Long ownerId);
 
     //persons
     public Long addPersonToProject(Long personId, Long projectId);
@@ -35,8 +36,6 @@ public interface DBManagerService extends RemoteService {
     public Person login(String login, String password);
     public List<Person> getPersonsByPprojectId(Long id);
 	//String greetServer(String name) throws IllegalArgumentException;
-    public List<Person> getUnassignedPeopleByProjectId(Long id);
-
 
     // projects
     public List<Project> getProjects();
@@ -45,5 +44,4 @@ public interface DBManagerService extends RemoteService {
     public void updateProject(Project aProject);
     public Integer removeProject(Long id);
     public List<Project> getProjectsByPersonId(Long id);
-
 }
